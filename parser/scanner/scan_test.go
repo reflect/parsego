@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jmikkola/parsego/parser/scanner"
-	"github.com/jmikkola/parsego/parser/textpos"
+	"github.com/reflect/parsego/parser/scanner"
+	"github.com/reflect/parsego/parser/textpos"
 )
 
 func assertReads(t *testing.T, sc scanner.ReadRune, c rune) {
@@ -18,71 +18,71 @@ func assertReads(t *testing.T, sc scanner.ReadRune, c rune) {
 func TestSimpleRewind(t *testing.T) {
 	sc := scanner.FromString("abcdefgh")
 
-	assert.Equal(t, textpos.Pos(0, 0), sc.GetPos())
+	assert.Equal(t, textpos.Pos(0, 0, 0), sc.GetPos())
 	assertReads(t, sc, 'a')
 	assertReads(t, sc, 'b')
-	assert.Equal(t, textpos.Pos(0, 2), sc.GetPos())
+	assert.Equal(t, textpos.Pos(2, 0, 2), sc.GetPos())
 
 	sc.StartSnapshot()
 	assertReads(t, sc, 'c')
 	assertReads(t, sc, 'd')
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 
 	sc.RewindSnapshot()
-	assert.Equal(t, textpos.Pos(0, 2), sc.GetPos())
+	assert.Equal(t, textpos.Pos(2, 0, 2), sc.GetPos())
 	assertReads(t, sc, 'c')
 	assertReads(t, sc, 'd')
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 }
 
 func TestSimplePop(t *testing.T) {
 	sc := scanner.FromString("abcdefgh")
 
-	assert.Equal(t, textpos.Pos(0, 0), sc.GetPos())
+	assert.Equal(t, textpos.Pos(0, 0, 0), sc.GetPos())
 	assertReads(t, sc, 'a')
 	assertReads(t, sc, 'b')
-	assert.Equal(t, textpos.Pos(0, 2), sc.GetPos())
+	assert.Equal(t, textpos.Pos(2, 0, 2), sc.GetPos())
 
 	sc.StartSnapshot()
 	assertReads(t, sc, 'c')
 	assertReads(t, sc, 'd')
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 
 	sc.PopSnapshot()
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 	assertReads(t, sc, 'e')
 	assertReads(t, sc, 'f')
-	assert.Equal(t, textpos.Pos(0, 6), sc.GetPos())
+	assert.Equal(t, textpos.Pos(6, 0, 6), sc.GetPos())
 }
 
 func TestRecursiveSnapshots(t *testing.T) {
 	sc := scanner.FromString("abcdefgh")
 
-	assert.Equal(t, textpos.Pos(0, 0), sc.GetPos())
+	assert.Equal(t, textpos.Pos(0, 0, 0), sc.GetPos())
 	assertReads(t, sc, 'a')
-	assert.Equal(t, textpos.Pos(0, 1), sc.GetPos())
+	assert.Equal(t, textpos.Pos(1, 0, 1), sc.GetPos())
 
 	sc.StartSnapshot()
 	assertReads(t, sc, 'b')
-	assert.Equal(t, textpos.Pos(0, 2), sc.GetPos())
+	assert.Equal(t, textpos.Pos(2, 0, 2), sc.GetPos())
 
 	sc.StartSnapshot()
 	assertReads(t, sc, 'c')
-	assert.Equal(t, textpos.Pos(0, 3), sc.GetPos())
+	assert.Equal(t, textpos.Pos(3, 0, 3), sc.GetPos())
 
 	sc.StartSnapshot()
 	assertReads(t, sc, 'd')
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 
 	sc.RewindSnapshot()
 	assertReads(t, sc, 'd')
-	assert.Equal(t, textpos.Pos(0, 4), sc.GetPos())
+	assert.Equal(t, textpos.Pos(4, 0, 4), sc.GetPos())
 	assertReads(t, sc, 'e')
-	assert.Equal(t, textpos.Pos(0, 5), sc.GetPos())
+	assert.Equal(t, textpos.Pos(5, 0, 5), sc.GetPos())
 
 	sc.RewindSnapshot()
 	sc.RewindSnapshot()
-	assert.Equal(t, textpos.Pos(0, 1), sc.GetPos())
+	assert.Equal(t, textpos.Pos(1, 0, 1), sc.GetPos())
 	assertReads(t, sc, 'b')
 }
 

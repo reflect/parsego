@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jmikkola/parsego/parser"
+	"github.com/reflect/parsego/parser"
 )
 
 func expectParses(t *testing.T, p parser.Parser, s string) {

@@ -5,7 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jmikkola/parsego/parser"
+	"github.com/reflect/parsego/parser"
+	"github.com/reflect/parsego/parser/scanner"
 )
 
 func TestParseEOF(t *testing.T) {
@@ -166,4 +167,42 @@ func TestIgnore(t *testing.T) {
 	result, err := parser.ParseString(p, `"some quoted string"`)
 	assert.NoError(t, err, "Expected successful parse")
 	assert.Equal(t, "some quoted string", result)
+}
+
+func TestLongest(t *testing.T) {
+	p1 := parser.Longest(
+		parser.Token("a"),
+		parser.Token("ab"),
+		parser.Token("abc"),
+		parser.Token("abcd"))
+	p2 := parser.Longest(
+		parser.Token("e"),
+		parser.Token("ef"),
+		parser.Token("efg"),
+		parser.Token("efgh"),
+	)
+	p := parser.Sequence(p1, p2)
+	sc := scanner.FromString("abcefgi")
+
+	result := p.Parse(sc)
+	assert.NoError(t, result.Error(), "Expected successful parse")
+	assert.Equal(t, "abcefg", result.Result())
+	assert.Panics(t, func() {
+		sc.PopSnapshot()
+	}, "Expected scanner to have no snapshots")
+
+	p1 = parser.Longest(
+		parser.Sep(parser.Token(">")),
+		parser.Sep(parser.Token(">=")),
+		parser.Sep(parser.Token("<")),
+		parser.Sep(parser.Token("<=")))
+	p = parser.Sequence(parser.Digits(), p1, parser.Digits())
+	sc = scanner.FromString("1 >= 2")
+
+	result = p.Parse(sc)
+	assert.NoError(t, result.Error(), "Expected successful parse")
+	assert.Equal(t, "1>=2", result.Result())
+	assert.Panics(t, func() {
+		sc.PopSnapshot()
+	}, "Expected scanner to have no snapshots")
 }
